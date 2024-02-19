@@ -30,6 +30,7 @@ export var global = {
 global.channel, global.config, global.language, global.totalcmd = 0, global.totaltext = 0, global.timer = 0;
 global.timePray = 30000, //5m
 global.captchaDetected = false, global.paused = false, global.lastTime = 0;
+global.userChatDetected = false
 
 //check data
 
@@ -83,6 +84,18 @@ process.on("SIGINT", function () {
     })
     .on("shardReady", () => reloadPresence(client))
     .on("messageCreate", async (message) => {
+        if(global.channel.id === message.channel.id && message.author.username !== global.config.tag
+            && message.author.id != "408785106942164992"
+            && message.author.id != "519287796549156864"){
+            const time = randomInt(2*60*1000, 5*60*1000)
+            log(`Co nguoi CHAT kia: ${message.author.displayName}-----${global.channel.name}`,"a")
+            log(`Continue after ${time/60000}`,"i")
+            global.channel.send("Hello")
+            global.userChatDetected = true
+            await sleep(time)
+            log("Continue ...","i")
+            global.userChatDetected = false
+        }
         if(message.author.id == global.owoID) {
             // I have verified that you are human! Thank you
             if(message.content.match(/verified that you are.{1,3}human!/igm) && message.channel.type == 'DM') {
