@@ -12,7 +12,7 @@ import open from "open";
 import { collectData } from "./lib/DataCollector.mjs"
 import { log } from "./lib/console.mjs"
 import { commandHandler, randomInt, reloadPresence, sleep, solveCaptcha, timeHandler } from "./lib/extension.mjs"
-import {aPray, main, notify, obOwo, ohOwo, sendOwo} from "./lib/SelfbotWorker.mjs"
+import {aPray, main, notify, obOwo, oBuy, ohOwo, sendOwo} from "./lib/SelfbotWorker.mjs"
 
 //define variables
 export const FolderPath = path.join(os.homedir(), "data")
@@ -84,27 +84,29 @@ process.on("SIGINT", function () {
     })
     .on("shardReady", () => reloadPresence(client))
     .on("messageCreate", async (message) => {
+        const content = message.content.replace(/\u200B/g, "")
         if(global.channel.id === message.channel.id && message.author.username !== global.config.tag
             && message.author.id != "408785106942164992"
             && message.author.id != "519287796549156864"){
-            const time = randomInt(2*60*1000, 5*60*1000)
-            log(`Co nguoi CHAT kia: ${message.author.displayName}-----${global.channel.name}`,"a")
-            log(`Continue after ${time/60000}`,"i")
-            global.channel.send("Hello")
-            global.userChatDetected = true
-            await sleep(time)
-            log("Continue ...","i")
-            global.userChatDetected = false
+            // const time = randomInt(2*60*1000, 5*60*1000)
+            // log(`Co nguoi CHAT kia: ${message.author.displayName}-----${global.channel.name}`,"a")
+            // log(`Continue after ${time/60000}`,"i")
+            // global.channel.send("Hello")
+            // global.userChatDetected = true
+            // await sleep(time)
+            // log("Continue ...","i")
+            // global.userChatDetected = false
         }
         if(message.author.id == global.owoID) {
             // I have verified that you are human! Thank you
-            if(message.content.match(/verified that you are.{1,3}human!/igm) && message.channel.type == 'DM') {
+            if(content.match(/verified that you are.{1,3}human!/igm) && message.channel.type == 'DM') {
                 log(`CAPTCHA HAS BEEN RESOLVED${global.config.autoResume ? ", RESTARTING SELFBOT..." : ""}`, "a");
                 if(!global.config.autoResume) process.exit(1);
                 global.captchaDetected = false;
                 if(global.config.huntPet){
                     obOwo()
                     ohOwo()
+                    oBuy()
                 }
                 if(global.config.autopray){
                     aPray()
@@ -114,12 +116,12 @@ process.on("SIGINT", function () {
                 }
                 main();
             }
-            else if(((message.content.includes(message.client.user.username) ||
-                message.content.includes(message.guild.members.me.displayName) ||
-                message.content.includes(message.client.user.id)) &&
-              (  message.content.match(/you are human/igm) ||
-                message.content.match(/you a real human/igm))) ||
-                (message.content.includes('Beep Boop') && message.channel.type == 'DM')) {
+            else if(((content.includes(message.client.user.username) ||
+                content.includes(message.guild.members.me.displayName) ||
+                content.includes(message.client.user.id)) &&
+              (  content.match(/you are human/igm) ||
+                content.match(/you a real human/igm))) ||
+                (content.includes('Beep Boop') && message.channel.type == 'DM')) {
                 console.log("\n");
                 console.log("\x1b[92mTotal command sent: \x1b[0m" + global.totalcmd);
                 console.log("\x1b[92mTotal text sent: \x1b[0m" + global.totaltext);
@@ -133,7 +135,7 @@ process.on("SIGINT", function () {
                 if(!global.config.autoResume) process.exit(1);
             }
 
-            else if(message.content.match(/have been banned/) && (message.channel.type == 'DM' || message.content.includes(message.guild.members.me.displayName))) {
+            else if(content.match(/have been banned/) && (message.channel.type == 'DM' || content.includes(message.guild.members.me.displayName))) {
                 log("ACCOUNT HAS BEEN BANNED, STOPPING SELFBOT...", "e")
                 process.kill(process.pid, "SIGINT");
             }
